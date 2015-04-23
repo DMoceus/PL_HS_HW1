@@ -115,11 +115,14 @@ e.g.
    Haskell1F14> newtonAppr 5e+30 1 100000000000000000000000000    
    2.2360684271923805e15
 
+ATTENTION: THIS ONE DOES NOT WORK, IT JUST INFINITE LOOPS AND I DONT KNOW WHY
+
 > newtonAppr num guess appr
 >	| ((guess*guess) - num) <= appr && ((guess*guess) - num) >= 0	= guess
 >	| (num - (guess*guess)) <= appr && (num - (guess*guess)) >= 0	= guess
->	| otherwise	= newtonAppr num (newGuess num guess) appr
-> newGuess num guess = guess * (num / guess)
+>	| otherwise	= newtonAppr num (newGuess (num,guess)) appr
+> 		where
+>			newGuess (num,guess) = (guess * (num / guess))/2
 
 Problem 6:
 A Define sumHarmonic using a simple recursive style:
