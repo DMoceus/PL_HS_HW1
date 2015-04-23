@@ -1,4 +1,4 @@
-> module Haskell1F14
+> module Haskell1F15
 >     where
        
 
@@ -16,12 +16,9 @@ Problem 1: Thompson 10.3
     -21
 
 
-> composeList [] = []
+> composeList [] = id
 > composeList (n:ns) = n . (composeList ns)
 
- composeList (n:ns)
- 	| (n:ns) == []	= []
-	| otherwise		= n . (composeList ns)
 
 Problem 2: (from http://en.wikipedia.org/wiki/Thue%E2%80%93Morse_sequence )
 "In mathematics, the Thue-Morse sequence, or Prouhet-Thue-Morse sequence, is a 
@@ -50,6 +47,8 @@ Spelling out the first few steps in detail:
     * Combining these, the first 4 elements are 0110.
     * The bitwise negation of 0110 is 1001.
     * Combining these, the first 8 elements are 01101001.
+	01101001 -> 10010110
+	0110100110010110 -> 1001011001101001
     * And so on.
 So
     * T0 = 0.
@@ -61,8 +60,12 @@ e.g.
    ....> thue [0,1,1,0]
    [0,1,1,0,1,0,0,1]
 
+> thue a = a ++ thue2 a
+> 	where
+> 		thue2 []	= []
+>		thue2 (1:t)	= 0:thue2 t
+>		thue2 (0:t)	= 1:thue2 t
 
- 
 Problem 3:
 Define a primitive recursive function 'merge' that given two sorted lists returns 
 a sorted list with all the unique elements from lists.  
@@ -70,6 +73,13 @@ e.g.
    Haskell1F14> merge [1,8,9,100] [3,7,9,99,100]    
    [1,3,7,8,9,99,100]
 
+> merge [] [] = []
+> merge [a] [] = [a]
+> merge [] [a] = [a]
+> merge (a:ta) (b:tb)
+>	| b < a		= b:(merge (a:ta) tb)
+>	| a < b		= a:(merge ta (b:tb))
+> 	| otherwise	= a:(merge ta tb)
 
 Problem 4:
 Define a function replicate' (notice the "'") which given a list of numbers returns a 
@@ -79,6 +89,11 @@ definition. You may use a nested helper definition. eg.
      ....> replicate' [2, 4, 1]
      [2,2,4,4,4,4,1]
 
+> replicate' [] = []
+> replicate' (h:t) = (repl' h h) ++ replicate' t
+> 	where
+>		repl' _ 0 = []
+>		repl' a b = a:(repl' a (b-1))
 
 Problem 5: Implement Newton's method for calculating the square root of N. Your
 definition should use primitive recursive style.  
@@ -100,10 +115,13 @@ e.g.
    Haskell1F14> newtonAppr 5e+30 1 100000000000000000000000000    
    2.2360684271923805e15
 
+> newtonAppr num guess appr
+>	| ((guess*guess) - num) <= appr && ((guess*guess) - num) >= 0	= guess
+>	| (num - (guess*guess)) <= appr && (num - (guess*guess)) >= 0	= guess
+>	| otherwise	= newtonAppr num (newGuess num guess) appr
+> newGuess num guess = guess * (num / guess)
 
-
-Problem 6
-:
+Problem 6:
 A Define sumHarmonic using a simple recursive style:
 
 The harmonic series is the following infinite series:
@@ -116,5 +134,5 @@ terms of this series. For example, sumHarmonic 4 ~> 1 + 1 + 1 + 1 ~> 2.08333...
                                                         2   3   4
 Let GHCI infer the type of sumHarmonic 
 
-
-
+> sumHarmonic 1 = 1
+> sumHarmonic i = (1/i) + (sumHarmonic (i-1))
